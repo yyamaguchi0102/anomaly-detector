@@ -82,8 +82,8 @@ def main():
     data_path = 'data/raw/sample_logs.csv'
     model_path = 'data/processed/isolation_forest_model.joblib'
     
-    # Train model
-    train_model(data_path, model_path)
+    # Train model with default contamination rate
+    train_model(data_path, model_path, contamination=0.05)  # 5% expected anomalies
 
 if __name__ == "__main__":
     main() 

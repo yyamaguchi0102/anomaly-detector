@@ -3,11 +3,12 @@ import time
 from datetime import datetime
 import logging
 from typing import Generator, Dict, Any
+import sys
 
 logger = logging.getLogger(__name__)
 
 class LogStreamSimulator:
-    def __init__(self, data_path: str, speed_factor: float = 1.0):
+    def __init__(self, data_path: str, speed_factor: float = 10.0):
         """
         Initialize the log stream simulator.
         
@@ -35,8 +36,17 @@ class LogStreamSimulator:
             
         # Calculate real time difference
         real_diff = (next_timestamp - current_timestamp).total_seconds()
-        # Adjust for speed factor
-        return real_diff / self.speed_factor
+        # Adjust for speed factor and ensure minimum delay
+        return max(0.01, real_diff / self.speed_factor)
+        
+    def _print_progress(self):
+        """Print progress bar."""
+        progress = self.get_progress()
+        bar_length = 50
+        filled_length = int(bar_length * progress)
+        bar = '=' * filled_length + '-' * (bar_length - filled_length)
+        sys.stdout.write(f'\rProgress: [{bar}] {progress:.1%}')
+        sys.stdout.flush()
         
     def stream(self) -> Generator[Dict[str, Any], None, None]:
         """
@@ -51,6 +61,7 @@ class LogStreamSimulator:
         self.start_time = datetime.now()
         last_timestamp = None
         
+        print("\nStarting log stream simulation...")
         for idx, row in self.df.iterrows():
             # Calculate delay if not first entry
             if last_timestamp is not None:
@@ -63,7 +74,12 @@ class LogStreamSimulator:
             last_timestamp = row['timestamp']
             self.current_idx = idx
             
+            # Print progress
+            self._print_progress()
+            
             yield log_entry
+            
+        print("\nStream completed!")
             
     def get_progress(self) -> float:
         """Get the current progress of the stream (0.0 to 1.0)."""

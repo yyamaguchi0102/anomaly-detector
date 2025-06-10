@@ -132,7 +132,10 @@ class AnomalyDetector:
             raise
 
 def print_log_entry(log_entry: Dict[str, Any]):
-    """Print a log entry with color coding."""
+    """Print a log entry with color coding and detailed anomaly information."""
+    # Print newline to avoid overwriting progress bar
+    print()
+    
     # Determine color based on anomaly status
     color = Fore.RED if log_entry['is_anomaly'] else Fore.GREEN
     status = "ANOMALY" if log_entry['is_anomaly'] else "NORMAL"
@@ -145,8 +148,24 @@ def print_log_entry(log_entry: Dict[str, Any]):
         f"IP: {log_entry['ip_address']} | "
         f"Action: {log_entry['action']} | "
         f"Status: {log_entry['status_code']} | "
+        f"Response: {log_entry['response_time']}ms | "
         f"Score: {log_entry['anomaly_score']:.3f}"
     )
+    
+    # Add anomaly explanation if it's an anomaly
+    if log_entry['is_anomaly']:
+        explanations = []
+        if log_entry['ip_address'].startswith('192.168.'):
+            explanations.append("Unusual internal IP")
+        if log_entry['action'] in ['delete', 'modify_permissions', 'system_access']:
+            explanations.append("Suspicious action")
+        if log_entry['status_code'] in [418, 429, 503]:
+            explanations.append("Unusual status code")
+        if log_entry['response_time'] in [0, 5000, 10000]:
+            explanations.append("Extreme response time")
+            
+        if explanations:
+            output += f"\n{Fore.YELLOW}Reasons: {', '.join(explanations)}{Style.RESET_ALL}"
     
     print(output)
 
@@ -171,8 +190,10 @@ def main():
                       help='Path to the trained model')
     parser.add_argument('--threshold', type=float, default=None,
                       help='Anomaly score threshold (optional)')
-    parser.add_argument('--speed', type=float, default=1.0,
+    parser.add_argument('--speed', type=float, default=10.0,
                       help='Simulation speed factor (1.0 = real-time)')
+    parser.add_argument('--show-all', action='store_true',
+                      help='Show all entries, not just anomalies')
     
     args = parser.parse_args()
     
@@ -199,8 +220,9 @@ def main():
             # Update performance metrics
             performance_monitor.log_processing(result['is_anomaly'], processing_time)
             
-            # Print the result
-            print_log_entry(result)
+            # Print the result if it's an anomaly or if show-all is True
+            if result['is_anomaly'] or args.show_all:
+                print_log_entry(result)
             
         # Print performance summary
         print_performance_summary(performance_monitor.get_summary())
