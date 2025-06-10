@@ -2,8 +2,8 @@
 
 A lightweight, real-time anomaly detection tool for cybersecurity logs using machine learning.
 
-**Full Technical Documentation** → [View on Notion](https://southern-feta-f21.notion.site/Real-Time-Anomaly-Detection-Doc-20e738750e7a80feb78cc750018ef78f)**
-**日本語技術ドキュメントはこちら** → [Notionページを開く](https://southern-feta-f21.notion.site/Doc-20e738750e7a8010b536c967ad0aceb4)**
+**Full Technical Documentation** → [View on Notion](https://southern-feta-f21.notion.site/Real-Time-Anomaly-Detection-Doc-20e738750e7a80feb78cc750018ef78f) \n
+**日本語技術ドキュメントはこちら** → [Notionページを開く](https://southern-feta-f21.notion.site/Doc-20e738750e7a8010b536c967ad0aceb4)
 
 ## Project Structure
 ```
